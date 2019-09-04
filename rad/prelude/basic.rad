@@ -88,8 +88,6 @@
       (maybe->>= (f i (nth 0 xs))
                  (fn [b] (maybe-foldlM f b (drop 1 xs)))))))
 
-;; elem?
-
 (def elem?
   "Returns true if `x` is an element of the sequence `xs`"
   (fn [x xs]
@@ -141,5 +139,5 @@
 (def req
   (macro
    (fn []
-     '(do (require primitives '[list member? ref map string-append first seq show length foldl foldr atom? number? keyword? string? boolean? dict? vector? list? eq? zip nth rest vec-to-list cons lookup insert delete drop + - / > < write-ref read-ref <>])
-          (require prelude.basic '[or if])))))
+     '(do (require primitives '[list member? ref map string-append first seq show length foldl foldr atom? number? keyword? string? boolean? dict? vector? list? eq? zip nth rest vec-to-list cons lookup insert delete drop + - / > < write-ref read-ref <> type take add-right add-left throw apply sort-by integral?])
+          (require prelude.basic '[or if elem? read])))))

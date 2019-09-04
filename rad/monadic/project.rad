@@ -1,7 +1,9 @@
 (ns monadic.project
   "Interact with projects and project machines")
 
-(require prelude.basic '[if])
+(prelude.basic//req)
+(prelude.io//req)
+(require primitives '[gen-key-pair! default-ecc-curve now!])
 (require prelude.test-macro ['test])
 (require prelude.seq '[filter])
 (require prelude.macros '[let])
@@ -13,12 +15,12 @@
 
 (def get-project-url!
   (fn []
-    (def proj (get-git-config! "radicle.project-id"))
-    (if (eq? proj "")
-      (do
-        (put-str! "Not in a radicle project")
-        (exit! 1))
-      proj)))
+    (let [proj (get-git-config! "radicle.project-id")]
+      (if (eq? proj "")
+        (do
+          (put-str! "Not in a radicle project")
+          (exit! 1))
+        proj))))
 
 (def rsm-id
   "The name of this RSM."

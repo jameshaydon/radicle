@@ -15,7 +15,8 @@
            missing-arg-for-opt
            missing-arg
            invalid-opt-for-cmd
-           invalid-arg-for-opt]
+           invalid-arg-for-opt
+           whole-item-number]
          error)
 
 (def parse-failure-mode (ref {:stub #f}))
@@ -34,6 +35,42 @@
   (fn [cmd opts]
     (catch 'invalid-input (cmd opts) (fn [x] x))))
 
+(defp parse-cli
+  (fn [args]
+    (let [parse-arg
+          (fn [opt args]
+            (let [opt-key (lookup :key opt)
+                  valid-args (lookup :possible-values opt)]
+              (match args
+                     (^cons 'val 'rest)
+                     (if (elem? val valid-args)
+                       (safe-modify-map opt-key
+                                        (fn [maybe-xs]
+                                          (match maybe-xs
+                                                 :nothing    [:just [val]]
+                                                 [:just 'xs] [:just (cons val xs)]))
+                                        (parse-cli rest))
+                       (do
+                         (if (starts-with? val "-")
+                           (parse-failure
+                            (error/missing-arg-for-opt (show opt-key) valid-args) help)
+                           (parse-failure
+                            (error/invalid-arg-for-opt val (show opt-key) valid-args)
+                            help))))
+                     []  (parse-failure
+                          (error/missing-arg-for-opt (show opt-key) valid-args) help))))
+          parse-opt
+          (fn [opt rest]
+            (let [option (match (filter (fn [x] (elem? opt (lookup :options x))) cmd-opts)
+                                []    (parse-failure (error/invalid-opt-for-cmd opt "list") help)
+                                'filt (first filt))]
+              (if (eq? (lookup :type option) :flag)
+                (insert (lookup :key option) #t (parse-cli rest))
+                (parse-arg option rest))))]
+      (match args
+             ^nil               {}
+             (^cons 'opt 'rest) (parse-opt opt rest)))))
+
 (def ^cmd-opts
   "Matches the command `cmd` and a combination of options `opt`. The options
   need to be one of `:options` of the dicts in `cmd-opts`. In that list each
@@ -50,42 +87,7 @@
                       [k (match (lookup-maybe k givens)
                                 :nothing       (lookup :default opt)
                                 [:just 'given] given)]))
-                  cmd-opts)))
-          parse-cli
-          (fn [args]
-            (let [parse-arg
-                  (fn [opt args]
-                    (let [opt-key (lookup :key opt)
-                          valid-args (lookup :possible-values opt)]
-                      (match args
-                             (^cons 'val 'rest)
-                             (if (elem? val valid-args)
-                               (safe-modify-map opt-key
-                                                (fn [maybe-xs]
-                                                  (match maybe-xs
-                                                         :nothing    [:just [val]]
-                                                         [:just 'xs] [:just (cons val xs)]))
-                                                (parse-cli rest))
-                               (do
-                                 (if (starts-with? val "-")
-                                   (parse-failure
-                                    (error/missing-arg-for-opt (show opt-key) valid-args) help)
-                                   (parse-failure
-                                    (error/invalid-arg-for-opt val (show opt-key) valid-args)
-                                    help))))
-                             []  (parse-failure
-                                  (error/missing-arg-for-opt (show opt-key) valid-args) help))))
-                  parse-opt
-                  (fn [opt rest]
-                    (let [option (match (filter (fn [x] (elem? opt (lookup :options x))) cmd-opts)
-                                        []    (parse-failure (error/invalid-opt-for-cmd opt "list") help)
-                                        'filt (first filt))]
-                      (if (eq? (lookup :type option) :flag)
-                        (insert (lookup :key option) #t (parse-cli rest))
-                        (parse-arg option rest))))]
-              (match args
-                     ^nil               {}
-                     (^cons 'opt 'rest) (parse-opt opt rest))))]
+                  cmd-opts)))]
       (fn [v]
         (match v
                (^cons cmd 'os) [:just {opts (add-defaults (parse-cli os))}]
@@ -214,7 +216,7 @@
   user."
   (fn [help item action num-str f]
     (let [bad (fn [] (parse-failure (error/missing-item-number item action) help))
-          n (catch 'any (read num-str) (fn [_] (bad)))]
+          n (catch 'parse-error (read num-str) (fn [_] (bad)))]
       (if (number? n)
         (if (integral? n)
           (f n)

@@ -6,7 +6,7 @@
 ;; TODO(james): likely some of these are unneeded deps. Just copy-pasted those
 ;; of issue-remote.
 
-(require prelude.basic '[if])
+(prelude.basic//req)
 (require prelude.macros '[let])
 (require prelude.dict '[keys delete-many])
 (require prelude.ref '[over-ref modify-ref])

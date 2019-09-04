@@ -2,8 +2,8 @@
 
 (prelude.basic//req)
 (require prelude.test-macro ['test])
-(require prelude.bool [])
-(require prelude.patterns '[match-pat _])
+(require prelude.bool '[not])
+(require prelude.patterns '[match-pat _ ^as])
 
 (def seq?
   "Returns `#t` if `x` is a list or a vector."
@@ -36,7 +36,7 @@
       (fn [acc new]
         (if (empty? new)
           acc
-          (go (cons (head new) acc) (tail new)))))
+          (go (cons (first new) acc) (rest new)))))
     (match (type xs)
            :list (go '() xs)
            :vec (go [] xs)
@@ -54,9 +54,9 @@
   "Returns `ls` with only the elements that satisfy `pred`."
   (fn [pred ls]
     (cond
-      (empty? ls)      ls
-      (pred (head ls)) (cons (head ls) (filter pred (tail ls)))
-      :else            (filter pred (tail ls)))))
+      (empty? ls)       ls
+      (pred (first ls)) (cons (first ls) (filter pred (rest ls)))
+      :else             (filter pred (rest ls)))))
 
 (test "filter"
   [ (filter (fn [x] (< x 10)) (list 3 10 11 5))
@@ -70,11 +70,11 @@
   "Returns all elements of a sequence `ls` until one does not satisfy `pred`"
   (fn [pred ls]
     (cond
-      (empty? ls)       ls
-      (pred (head ls))  (cons (head ls) (take-while pred (tail ls)))
-      :else             (if (list? ls)
-                          (list)
-                          []))))
+      (empty? ls)        ls
+      (pred (first ls))  (cons (first ls) (take-while pred (rest ls)))
+      :else              (if (list? ls)
+                           (list)
+                           []))))
 
 (test "take-while"
   [ (take-while (fn [x] (eq? x "bar")) (list "foo" "bar") ) ==> () ]
@@ -111,7 +111,7 @@
         :nothing)
       )))
 
-(test "/prefix"
+(test "^prefix"
       [ (match [0 2 3]
                (^prefix [0 2] 'rs) rs
                )
@@ -126,7 +126,7 @@
        ==> "cd" ]
       ;; nested pattern
       [ (match [1 2 3]
-               (^prefix [1 2] (/as 'rs _)) rs
+               (^prefix [1 2] (^as 'rs _)) rs
                )
        ==> [3] ]
       ;; fail on keyword

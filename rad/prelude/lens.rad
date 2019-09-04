@@ -1,5 +1,6 @@
 (ns prelude.lens "Functional references.")
 
+(prelude.basic//req)
 (require prelude.test-macro ['test])
 (require prelude.ref '[modify-ref])
 (require prelude.dict '[lookup-default])
@@ -148,8 +149,8 @@
     (modify-ref r (fn [x] (over lens f x)))))
 
 (test "over-ref"
-  [ ((fn [r]
-      (over-ref r (@ :a) (fn [x] (* x 2)))
-      (view-ref r (@ :a)))
-    (ref {:a 2}))
-    ==> 4 ])
+      [ ((fn [r]
+           (over-ref r (@ :a) (fn [x] (primitives//* x 2)))
+           (view-ref r (@ :a)))
+         (ref {:a 2}))
+       ==> 4 ])

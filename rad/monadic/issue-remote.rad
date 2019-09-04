@@ -3,7 +3,7 @@
 
 (ns monadic.issue-remote)
 
-(require prelude.basic '[if])
+(prelude.basic//req)
 (require prelude.macros '[let])
 (require prelude.dict '[keys delete-many])
 (require prelude.ref '[over-ref])

@@ -4,7 +4,7 @@
    used for checking data before accepting it onto a chain.")
 
 (prelude.basic//req)
-(require primitives '[uuid? public-key? timestamp? verify-signature show-unformatted])
+(require primitives '[uuid? public-key? timestamp? verify-signature show-unformatted integral?])
 (require prelude.test-macro ['test])
 (require prelude.dict '[delete-many])
 (require prelude.dict '[keys] dict)

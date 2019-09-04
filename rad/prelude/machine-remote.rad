@@ -1,5 +1,6 @@
 (ns prelude.machine-remote "Functions for writing remote RSMs")
 
+(prelude.basic//req)
 (require prelude.test-macro '[test tests])
 (require prelude.macros '[let])
 (require prelude.ref '[modify-ref])

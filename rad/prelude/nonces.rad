@@ -2,7 +2,7 @@
   "Functions for using nonces.")
 
 (prelude.basic//req)
-(prelude.io//req)
+(require prelude.macros '[let])
 (require prelude.test-macro '[test])
 (require prelude.bool '[not])
 (require prelude.patterns '[match-pat])
@@ -26,21 +26,21 @@
    ```
    "
   (fn []
-    (def used-nonces (ref set/empty))
-    (def unused? (fn [nonce] (not (set/member? nonce (read-ref used-nonces)))))
-    (def use-nonce (fn [nonce] (modify-ref used-nonces (fn [s] (set/insert nonce s)))))
-    (fn [expr]
-      (match expr
-             :validator (validator/and [validator/uuid (validator/pred "Nonce already used" unused?)])
-             [:use 'nonce] (use-nonce nonce)
-             _ (throw 'match-failure "expecting [:use <nonce>] or :validate")))))
+    (let [used-nonces (ref set/empty)
+          unused? (fn [nonce] (not (set/member? nonce (read-ref used-nonces))))
+          use-nonce (fn [nonce] (modify-ref used-nonces (fn [s] (set/insert nonce s))))]
+      (fn [expr]
+        (match expr
+               :validator (validator/and [validator/uuid (validator/pred "Nonce already used" unused?)])
+               [:use 'nonce] (use-nonce nonce)
+               _ (throw 'match-failure "expecting [:use <nonce>] or :validate"))))))
 
 (test "make-noncer"
       [:setup
        (do
          (def noncer (make-noncer))
-         (def n1 (uuid!))
-         (def n2 (uuid!))
+         (def n1 (primitives//uuid!))
+         (def n2 (primitives//uuid!))
          (noncer [:use n1]))
        ]
 

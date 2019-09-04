@@ -1,7 +1,7 @@
 (ns prelude.machine "Functions for simulating remote machines.")
 
 (prelude.basic//req)
-(require primitives '[pure-state daemon.send! daemon.query! daemon.new-machine! eval])
+(require primitives '[pure-state daemon.send! daemon.query! daemon.new-machine! eval gen-signature! show-unformatted])
 (require prelude.test-macro ['test])
 (require prelude.macros '[let])
 (prelude.io//req)
@@ -141,7 +141,7 @@
            (def send-result (send! machine '[(def foo 5) foo]))
            )]
       [ send-result ==> [() 5] ]
-      [ (query! machine '(+ 1 foo)) ==> 6 ]
+      [ (query! machine '(primitives//+ 1 foo)) ==> 6 ]
       )
 
 (def send-code!

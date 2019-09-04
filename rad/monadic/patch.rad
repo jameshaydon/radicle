@@ -1,5 +1,9 @@
 (ns monadic.patch)
 
+(prelude.basic//req)
+(prelude.io//req)
+(require prelude.lens '[view .. ... @ @nth])
+(require primitives '[gen-key-pair! default-ecc-curve now!])
 (require prelude.test-macro '[test])
 (require prelude.macros '[let])
 (require prelude.machine

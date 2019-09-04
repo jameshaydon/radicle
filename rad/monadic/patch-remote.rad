@@ -1,6 +1,6 @@
 (ns monadic.patch-remote)
 
-(require prelude.basic '[if])
+(prelude.basic//req)
 (require prelude.macros '[let])
 (require prelude.dict '[keys delete-many lookup-default])
 (require prelude.ref '[over-ref])

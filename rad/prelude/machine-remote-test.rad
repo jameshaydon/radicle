@@ -16,7 +16,7 @@
   (machine/send!
    id
    '[(ns toplevel)
-     (require prelude.basic '[if])
+     (prelude.basic//req)
      (require prelude.patterns '[match-pat _])
      (require prelude.ref '[modify-ref])
      (require prelude.machine-remote '[lock-machine])

@@ -1,9 +1,13 @@
 (ns monadic.issue
   "Functions for interacting with issue machine")
 
+(prelude.basic//req)
+(prelude.io//req)
+(require primitives '[gen-key-pair! default-ecc-curve now!])
 (require prelude.test-macro ['test])
 (require prelude.macros '[let])
-(require prelude.lens [])
+(require prelude.dict '[values])
+(require prelude.lens '[view .. ... @ @nth])
 (require prelude.machine
          '[send-code! send-signed-command! install-remote-machine-fake
            new-machine! send-prelude! send-code! query!]

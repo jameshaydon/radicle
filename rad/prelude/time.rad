@@ -1,6 +1,7 @@
 (ns prelude.time
   "Time-related functions.")
 
+(prelude.basic//req)
 (require prelude.macros '[let])
 (require tests.primitive-stub-ref '[primitive-stub-ref-now!])
 
